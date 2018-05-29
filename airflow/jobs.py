@@ -1419,9 +1419,9 @@ class SchedulerJob(BaseJob):
 
                 # TODO: should we fail RUNNING as well, as we do in Backfills?
                 if ti.state == State.QUEUED:
-                    msg = ("Executor reports task instance %s finished (%s) "
-                           "although the task says its %s. Was the task "
-                           "killed externally?".format(ti, state, ti.state))
+                    msg = "Executor reports task instance %s finished (%s) \
+                           although the task says its %s. Was the task \
+                           killed externally?" % (ti, state, ti.state)
                     self.log.error(msg)
                     try:
                         simple_dag = simple_dag_bag.get_dag(dag_id)
@@ -1430,9 +1430,11 @@ class SchedulerJob(BaseJob):
                         ti.task = dag.get_task(task_id)
                         ti.handle_failure(msg)
                     except Exception:
+                        import traceback
                         self.log.error("Cannot load the dag bag to handle failure for %s"
                                        ". Setting task to FAILED without callbacks or "
                                        "retries. Do you have enough resources?", ti)
+                        print(traceback.format_exc())
                         ti.state = State.FAILED
                         session.merge(ti)
                         session.commit()
